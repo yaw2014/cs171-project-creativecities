@@ -1,0 +1,29 @@
+Field,Field Name,Description
+seq_id,Sequence ID,Unique ID for this record.
+g250m_id,Grid ID,Unique integer ID for 250 meter grid cell
+hh10,"Households, 2010","Estimated number of households in the grid cell, 2010. MAPC allocated Census 2010 block-level household counts to grid cells based on point-level household records from third-party data vendor and/or distribution of residential land uses.  Sources: InforGroup (Household records), MassGIS (Land Use 2005), U.S. Census. "
+quarter,Sample Date,"Date of record. The vehicle-level dataset is sampled on the median day of each calendar quarter (e.g., February 14 for Q1). Sample date is expressed as the calendar quarter.  "
+veh_tot,Total Vehicles,Total Registered Vehicles (pass_veh) + (comm_veh)
+pass_veh,Passenger Vehicles,Total Passenger Vehicles (pass_geo + pass_zip_assign + pass_muni_assign)
+ovrlp_pct,Mileage Estimate Overlap,"The composite mileage estimate overlap for all geocoded vehicles with a valid inspection record.  Calcluated as the sum of Percent Overlap divided by the total number of qualifying vehicles (geocoded to this drid cell, mileage estimate of 200 miles per day or less.) A measure of mileage estimate reliability. High values indicate that a greater proportion of the estimates are based on vehicles garaged at the same location to the same owner for the entirety of the mileage estimate period.  "
+pass_geo,Passenger Geocoded,"Count of passenger vehicles assigned to this grid cell based on geocoded street address, based on NAVTEQ and TIGER address ranges. "
+best_geo,Passenger Best Estimates,"Count of geocoded passenger vehicles that constitute a ""best"" mileage estimate. Best estimates are those in which the vehicle was garaged at the same location for the entirety or almost the entirety of the mileage estimate period. (The registration period overlaps more than 95% of inspection record days, so Percent Overlap >0.95.) Only includes records with estimated mileage of 200 miles per day or less."
+pass_zip,Passenger Zip Assigned,Count of ungeocoded passenger vehicles within this zip code that are assigned to this grid cell based on its share of households in the zip code.  
+pass_muni,Passenger Muni Assigned,Count of ungeocoded passenger vehicles within this municipality that are assigned to this grid cell based on its share of households in the municipality.  
+veh_phh,Vehicles per Household,Registered passenger vehicle per household. Total passenger vehicles divided by Households 2010. 
+mipdaypass,Miles per Day Passenger Vehicles,Average daily mileage for passenger vehicles with a valid inspection record. The average is weighted by the percent overlap with the mileage estimate so the influence of unreliable estimates is minimized.  Valid estimates are limited to 200 miles per day or less.  
+mipday_phh,Household Miles per Day,Passenger vehicle miles travelled per household. Calculated as the estimated passenger vehicles per household multiplied by the average daily mileage for passenger vehicles.  
+mipdaybest,Miles per Day-Best,"Average daily mileage for ""best"" estimate vehicles. Samples are not weighted by percent overlap but estimates of greater than 200 miles per day are excluded.   "
+veh_lo,Low Mileage Vehicles,Geocoded Passenger Vehicles with valid mileage estimates of less than 16 miles per day (less than 25th percentile of VMT for entire Massachusetts passenger vehicle fleet in 2010.) 
+veh_medlo,Medium-Low Mileage Vehicles,Geocoded Passenger Vehicles with valid mileage estimates of 16 to 27 miles per day (25th to 50th percentile of VMT for entire Massachusetts passenger vehicle fleet in 2010.) 
+veh_medhi,Medium-High Mileage Vehicles,Geocoded Passenger Vehicles with valid mileage estimates of 27 to 40 miles per day (50th to 75th percentile of VMT for entire Massachusetts passenger vehicle fleet in 2010.) 
+veh_hi,High Mileage Vehicles,Geocoded Passenger Vehicles with valid mileage estimates of  more than 40 miles per day (above 75th percentile of VMT for entire Massachusetts passenger vehicle fleet in 2010.) 
+veh_vhi,Very High Mileage Vehicles,Geocoded Passenger Vehicles with valid mileage estimates of  more than 56 miles per day (above 90th percentile of VMT for entire Massachusetts passenger vehicle fleet in 2010.) 
+comm_veh,Commercial Vehicles,Total Estimated Commercial Vehicles (comm_geo + comm_zip_assign + comm_muni_assign)
+comm_geo,Commercial Geocoded,Count of Commercial Vehicles assigned to this grid cell based on geocoded street address
+comm_zip,Commercial Zip Assigned,Count of ungeocoded commercial vehicles within this zip code that are assigned to this grid cell.  
+comm_muni,Commercial Muni Assigned,Count of ungeocoded commercial vehicles within this municipality that are assigned to this grid cell.  
+mipdaycomm,Miles per Day Commercial Vehicles,Average Commercial Vehicle Miles per Day
+mpg_eff,Average Fuel Economy (MPG),"Average fuel economy for passenger vehicles with valid mileage estimates, weighted by average daily mileagee. Calculated as total estimated fuel consumption (gal_per_day) for vehicles with valid mileage estimates and fuel economy ratings, divided by total daily miles for same vehicles.  "
+glpdaypass,"Fuel per Day, Passenger","Average daily fuel (gasoline or diesel) consumption, a product of total passenger vehicles, passenger vehicle miles per day, and average fuel economy. "
+co2eqv_day,"CO2 per Day, Passenger","Daily greenhouse gas emissions (kilograms of CO2 equivalent), based on daily fuel consumption."
