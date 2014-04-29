@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+</head>
+<body>
+<script src="./libs/d3.v3.min.js"></script>
+<script src="./libs/queue.v1.min.js"></script>
+<script src="./libs/topojson.v1.min.js"></script>
+<script type="text/javascript" src="./libs/jquery-1.11.0.min.js"></script>
+<script src="./libs/FileSaver.js"></script>
+
+<div id="vis"></div>
+
+
+<script>
+
+    // all_data_01.json
+
+    //DONE  // 90spatentsBOS_NYC_SF.csv                                 # City Level #
+    //DONE  // Boston_Active_Food_Establishment_FT_filter.csv           # Neighborhood Level #
+    //DONE  // Boston_Public_Schools__School_Year_2012-2013_.csv        # Neighborhood Level #
+    //DONE  // boston_registeredcompanies.csv                           # Neighborhood Level #
+    //DONE  // creativeprofessionsbosnyc.csv                            # City Level #
+
+    // BP_2011_00CZ1_metadata.csv
+    // BP_2011_00CZ1_with_ann.csv
+    // grid_quarters_public_metadata.csv
+    // mbta_ridership_with_lat_long.csv
+    // MTA_ridership_data_with_lat_long.csv
+    // NYCSidewalk_Cafes.csv
+    // NYC_ZipCodes2.csv
+    // rae_public_metadata.csv
+
+
+
+
+    d3.json("./data/cleanedData/cleaned_data_03.json",function(error,dataC){
+
+        d3.tsv("./data/NYC_ZipCodes2.csv",function(error,dataS){
+
+            var nested_data = d3.nest()
+                    .key(function(d) { return d.ZCTA5CE00; }).sortKeys(d3.ascending)
+                //.key(function(d) { return d.SCH_TYPE; }).sortKeys(d3.ascending)
+                    .rollup(function(leaves) { return leaves.length; })
+                    .entries(dataS);
+
+            console.log(data);
+            console.log(nested_data);
+
+            var data = dataC["children"][1]["children"]
+
+            $.each(data,function(id,array){
+
+                $.each(nested_data,function(idS,arrayS){
+                    if(parseInt(array["key"]) == parseInt(arrayS["key"])){
+
+                        var schoolObj = array["school"];
+                        if( schoolObj == undefined){
+                            array["school"] = arrayS["values"];
+                        }else{
+                            array["school"] = arrayS["values"];
+                        }
+                    }else{
+                        var schoolObj = array["school"];
+                        if( schoolObj == undefined){
+                            array["school"] = 0;
+                        }
+                    }
+                });
+
+            console.log(dataC);
+            //saveToFile(dataC,"cleaned_data_03.json");
+            saveToFile(nested_data,"test.json");
+        });
+
+    });
+
+    var saveToFile = function(object, filename){
+        var blob, blobText;
+        blobText = [JSON.stringify(object)];
+        blob = new Blob(blobText, {
+            type: "text/plain;charset=utf-8"
+        });
+        saveAs(blob, filename);
+    }
+
+
+
+
+</script>
+
+
+</body>
+</html>

@@ -39,6 +39,17 @@ var detailVis2 = d3.selectAll("#detailVis2").append("svg").attr({
 //var x = d3.time.scale()
 //    .range([0, bbVisDetail.w]);//.domain([new Date("0"),new Date("4")]);
 
+var voronoi = d3.geom.voronoi();
+
+
+
+
+
+
+
+
+
+
 var x = d3.scale.ordinal().rangeRoundBands([0, bbVisDetail.w], .05);
 
 var y = d3.scale.linear().range([bbVisDetail.h, 0]);
@@ -184,45 +195,88 @@ var dataSet = {};
 
 var cScale = d3.scale.linear().range([1, 2]);
 
-
+var vertices=[];
 
 function loadStations() {
     d3.csv("data/NSRDB_StationsMeta.csv",function(error,data){
         //....
 
-    var ndata = data.filter(function(d){
+        var ndata = data.filter(function(d){
             var screencoord = projection([d["NSRDB_LON(dd)"], d["NSRDB_LAT (dd)"]])
             if(screencoord != null){
                 return d;
               }
         })
 
-        svg.append("g").attr("class","cg").selectAll("circle").data(ndata).enter().append("circle")
-            .attr('cx', function(d){var screencoord = projection([d["NSRDB_LON(dd)"], d["NSRDB_LAT (dd)"]]); return screencoord[0];/*console.log(screencoord[0])*/;})
-            .attr('cy', function(d){var screencoord = projection([d["NSRDB_LON(dd)"], d["NSRDB_LAT (dd)"]]); return screencoord[1]; /*console.log(screencoord[1])*/;})
-            .attr('r', function(d){ var sumAgg = completeDataSet[d["USAF"]]; if(sumAgg){return cScale(sumAgg["sum"]);}else{return 1;}})
-            .attr("fill",function(d){ var sumAgg = completeDataSet[d["USAF"]]; if(sumAgg){return "red";}else{return "gray";}})
-            .on("mouseover", showVal)
-            .on("mousemove", function(){return tooltip.style("top", (event.pageY-10)+"px").style("left",(event.pageX+10)+"px");})
-            .on("mouseout", function(d){d3.select(this).attr("r", function(d){ var sumAgg = completeDataSet[d["USAF"]]; if(sumAgg){return cScale(sumAgg["sum"]);}else{return 1;}}).attr("fill", function(d){ var sumAgg = completeDataSet[d["USAF"]]; if(sumAgg){return "red";}else{return "gray";}}); return tooltip.style("visibility", "hidden");})
-            .on("click",updateDetail);
 
-        svg2.append("g").attr("class","cg2").selectAll("circle").data(ndata).enter().append("circle")
-            .attr('cx', function(d){var screencoord = projection([d["NSRDB_LON(dd)"], d["NSRDB_LAT (dd)"]]); return screencoord[0];/*console.log(screencoord[0])*/;})
-            .attr('cy', function(d){var screencoord = projection([d["NSRDB_LON(dd)"], d["NSRDB_LAT (dd)"]]); return screencoord[1]; /*console.log(screencoord[1])*/;})
-            .attr('r', function(d){ var sumAgg = completeDataSet[d["USAF"]]; if(sumAgg){return cScale(sumAgg["sum"]);}else{return 1;}})
-            .attr("fill",function(d){ var sumAgg = completeDataSet[d["USAF"]]; if(sumAgg){return "red";}else{return "gray";}})
-            .on("mouseover", showVal)
-            .on("mousemove", function(){return tooltip.style("top", (event.pageY-10)+"px").style("left",(event.pageX+10)+"px");})
-            .on("mouseout", function(d){d3.select(this).attr("r", function(d){ var sumAgg = completeDataSet[d["USAF"]]; if(sumAgg){return cScale(sumAgg["sum"]);}else{return 1;}}).attr("fill", function(d){ var sumAgg = completeDataSet[d["USAF"]]; if(sumAgg){return "red";}else{return "gray";}}); return tooltip.style("visibility", "hidden");})
-            .on("click",updateDetail2);
+        // Data functions
+        var vert = function(d){return d.Locatoin;}
+
+        d3.json("data/all_data_01.json",function(err,dat){
+            $.each(dat,function(id, ob){
+                //console.log(id);
+                if(id>1){
+                    vertices.push(projection([ob.location.lng,ob.location.lat]))
+                }
+            })
+            console.log(vertices);
+
+            var pathV = svg.append("g").attr("class","voronoi").selectAll("path");
+            console.log(vertices.slice(1));
+
+            svg.selectAll("circle")
+                .data(vertices.slice(1))
+                .enter().append("circle").attr("class","voroCirc")
+                .attr("transform", function(d) { return "translate(" + d + ")"; })
+                .attr("r", 0.05);
+
+            redraw();
+
+            function redraw() {
+                pathV = pathV
+                    .data(voronoi(vertices), polygon);
+
+                pathV.exit().remove();
+
+                pathV.enter().append("path").attr("clip-path", "url(#clip4)")
+                    .attr("class", function(d, i) { return "q" + (i % 9) + "-9"; })
+                    .attr("d", polygon);
+
+                pathV.order();
+            }
+
+            function polygon(d) {
+                return "M" + d.join("L") + "Z";
+            }
+        });
+
+
+//        svg.append("g").attr("class","cg").selectAll("circle").data(ndata).enter().append("circle")
+//            .attr('cx', function(d){var screencoord = projection([d["NSRDB_LON(dd)"], d["NSRDB_LAT (dd)"]]); return screencoord[0];/*console.log(screencoord[0])*/;})
+//            .attr('cy', function(d){var screencoord = projection([d["NSRDB_LON(dd)"], d["NSRDB_LAT (dd)"]]); return screencoord[1]; /*console.log(screencoord[1])*/;})
+//            .attr('r', function(d){ var sumAgg = completeDataSet[d["USAF"]]; if(sumAgg){return cScale(sumAgg["sum"]);}else{return 1;}})
+//            .attr("fill",function(d){ var sumAgg = completeDataSet[d["USAF"]]; if(sumAgg){return "red";}else{return "gray";}})
+//            .on("mouseover", showVal)
+//            .on("mousemove", function(){return tooltip.style("top", (event.pageY-10)+"px").style("left",(event.pageX+10)+"px");})
+//            .on("mouseout", function(d){d3.select(this).attr("r", function(d){ var sumAgg = completeDataSet[d["USAF"]]; if(sumAgg){return cScale(sumAgg["sum"]);}else{return 1;}}).attr("fill", function(d){ var sumAgg = completeDataSet[d["USAF"]]; if(sumAgg){return "red";}else{return "gray";}}); return tooltip.style("visibility", "hidden");})
+//            .on("click",updateDetail);
+//
+//        svg2.append("g").attr("class","cg2").selectAll("circle").data(ndata).enter().append("circle")
+//            .attr('cx', function(d){var screencoord = projection([d["NSRDB_LON(dd)"], d["NSRDB_LAT (dd)"]]); return screencoord[0];/*console.log(screencoord[0])*/;})
+//            .attr('cy', function(d){var screencoord = projection([d["NSRDB_LON(dd)"], d["NSRDB_LAT (dd)"]]); return screencoord[1]; /*console.log(screencoord[1])*/;})
+//            .attr('r', function(d){ var sumAgg = completeDataSet[d["USAF"]]; if(sumAgg){return cScale(sumAgg["sum"]);}else{return 1;}})
+//            .attr("fill",function(d){ var sumAgg = completeDataSet[d["USAF"]]; if(sumAgg){return "red";}else{return "gray";}})
+//            .on("mouseover", showVal)
+//            .on("mousemove", function(){return tooltip.style("top", (event.pageY-10)+"px").style("left",(event.pageX+10)+"px");})
+//            .on("mouseout", function(d){d3.select(this).attr("r", function(d){ var sumAgg = completeDataSet[d["USAF"]]; if(sumAgg){return cScale(sumAgg["sum"]);}else{return 1;}}).attr("fill", function(d){ var sumAgg = completeDataSet[d["USAF"]]; if(sumAgg){return "red";}else{return "gray";}}); return tooltip.style("visibility", "hidden");})
+//            .on("click",updateDetail2);
     });
 }
 
 
 function loadStats() {
 
-    d3.json("data/reducedMonthStationHour2003_2004.json", function(error,data){
+    d3.json("data/unrelated/reducedMonthStationHour2003_2004.json", function(error,data){
         completeDataSet= data;
 
         var cdsArray = [];
@@ -244,6 +298,22 @@ function loadStats() {
 d3.json("data/us-named.json", function(error, data) {
 
     var usMap = topojson.feature(data,data.objects.states).features
+    var usM = topojson.feature(data,data.objects.states);
+
+
+    var selected = {
+        "25": 1
+    };
+
+    selection = {type: "FeatureCollection", features: usM.features.filter(function(d) { return d.id in selected; })};
+
+    var defs = svg.append("defs");
+
+    defs.append("clipPath")
+        .attr("id", "clip4")
+        .append("path")
+        .datum(selection)
+        .attr("d",path);
 
     svg.selectAll(".country")
         .data(usMap)

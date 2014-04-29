@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+</head>
+<body>
+<script src="./libs/d3.v3.min.js"></script>
+<script src="./libs/queue.v1.min.js"></script>
+<script src="./libs/topojson.v1.min.js"></script>
+<script type="text/javascript" src="./libs/jquery-1.11.0.min.js"></script>
+<script src="./libs/FileSaver.js"></script>
+
+<div id="vis"></div>
+
+
+<script>
+
+
+//    var orgData = {};
+//    orgData["name"] = "Cities";
+//    orgData["children"] = [
+//        {
+//            "name":"Boston",
+//            "location":{
+//                "lat": 42.358431,
+//                "lng": -71.059773
+//            },
+//            "yearly":[],
+//            "children":[]
+//        },
+//        {
+//            "name":"New York",
+//            "location":{
+//                "lat": 40.714353,
+//                "lng": -74.005973
+//            },
+//            "yearly":[],
+//            "children":[]
+//        }
+//    ];
+
+    // Reorganize data to work on Treemaps
+    d3.json("./data/CleanedData/cleaned_data_04.json",function(error,dataC){
+        d3.csv("./data/Done/Boston_Active_Food_Establishment_FT_filter.csv",function(error,data){
+
+            var bos = dataC["children"][0]["children"];
+            //var nyc = dataC["children"][1]["children"];
+
+            $.each(bos,function(idC,arrayC){
+
+                console.log(arrayC);
+
+                $.each(data,function(id,array){
+
+                    //console.log(arrayC);
+
+                    if(parseInt(arrayC["name"]) == parseInt(array["Zip"]) ){
+                        var obj = {}
+                        obj["name"] = array["BusinessName"];
+                        obj["city"] = array["City"];
+                        var locationString = array["Location"];
+                        var matches=locationString.match(/([0-9.-]+).+?([0-9.-]+)/);
+                        var lat=parseFloat(matches[1]);
+                        var long=parseFloat(matches[2]);
+                        //obj["location"] = [long,lat];
+                        obj["location"] = {"lat": lat, "lng":long};
+
+                        $.each(arrayC["children"],function(id_c,array_c){
+                            if(array_c["name"] == "Food"){
+                                array_c["children"].push(obj);
+                            }
+                        });
+                    }
+
+                })
+
+                // console.log(dataC);
+
+            });
+
+            saveToFile(dataC,"cleaned_data_05.json");
+
+        });
+
+    });
+
+    var saveToFile = function(object, filename){
+        var blob, blobText;
+        blobText = [JSON.stringify(object)];
+        blob = new Blob(blobText, {
+            type: "text/plain;charset=utf-8"
+        });
+        saveAs(blob, filename);
+    }
+
+
+
+
+</script>
+
+
+</body>
+</html>

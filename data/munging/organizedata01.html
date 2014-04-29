@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+</head>
+<body>
+<script src="./libs/d3.v3.min.js"></script>
+<script src="./libs/queue.v1.min.js"></script>
+<script src="./libs/topojson.v1.min.js"></script>
+<script type="text/javascript" src="./libs/jquery-1.11.0.min.js"></script>
+<script src="./libs/FileSaver.js"></script>
+
+<div id="vis"></div>
+
+
+<script>
+
+
+//    var orgData = {};
+//    orgData["name"] = "Cities";
+//    orgData["children"] = [
+//        {
+//            "name":"Boston",
+//            "location":{
+//                "lat": 42.358431,
+//                "lng": -71.059773
+//            },
+//            "yearly":[],
+//            "children":[]
+//        },
+//        {
+//            "name":"New York",
+//            "location":{
+//                "lat": 40.714353,
+//                "lng": -74.005973
+//            },
+//            "yearly":[],
+//            "children":[]
+//        }
+//    ];
+
+    // Reorganize data to work on Treemaps
+    d3.json("./data/CleanedData/cleaned_data_03.json",function(error,dataC){
+        d3.json("./data/CleanedData/all_data_nyc_02.json",function(error,data){
+
+            $.each(data,function(id,array){
+
+                //console.log(array);
+
+                // New York [1]
+                var nyc = dataC["children"][1]["children"];
+
+                var obj = {}
+                obj["name"] = array["key"];
+                obj["location"] = array["location"];
+                obj["children"] = [];
+
+                var objSchool = {};
+                objSchool["name"] = "School";
+                objSchool["size"] = array["school"];
+                objSchool["children"] = [];
+                obj["children"].push(objSchool);
+
+//                var objCompany = {};
+//                objCompany["name"] = "Company";
+//                objCompany["size"] = array["company"];
+//                objCompany["children"] = [];
+//                obj["children"].push(objCompany);
+
+                var objFood = {};
+                objFood["name"] = "Food";
+                objFood["size"] = array["food"];
+                objFood["children"] = [];
+                obj["children"].push(objFood);
+
+                nyc.push(obj);
+
+            });
+
+            saveToFile(dataC,"cleaned_data_04.json");
+
+        });
+
+    });
+
+    var saveToFile = function(object, filename){
+        var blob, blobText;
+        blobText = [JSON.stringify(object)];
+        blob = new Blob(blobText, {
+            type: "text/plain;charset=utf-8"
+        });
+        saveAs(blob, filename);
+    }
+
+
+
+
+</script>
+
+
+</body>
+</html>
