@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+</head>
+<body>
+<script src="./libs/d3.v3.min.js"></script>
+<script src="./libs/queue.v1.min.js"></script>
+<script src="./libs/topojson.v1.min.js"></script>
+<script type="text/javascript" src="./libs/jquery-1.11.0.min.js"></script>
+<script src="./libs/FileSaver.js"></script>
+
+<div id="vis"></div>
+
+
+<script>
+
+    // all_data_01.json
+
+    //      // 90spatentsBOS_NYC_SF.csv                                 # City Level #
+    //DONE  // Boston_Active_Food_Establishment_FT_filter.csv           # Neighborhood Level #
+    //>>>>  // Boston_Public_Schools__School_Year_2012-2013_.csv        # Neighborhood Level #
+            // boston_registeredcompanies.csv
+            // BP_2011_00CZ1_metadata.csv
+            // BP_2011_00CZ1_with_ann.csv
+            // creativeprofessionsbosnyc.csv
+            // grid_quarters_public_metadata.csv
+            // mbta_ridership_with_lat_long.csv
+            // MTA_ridership_data_with_lat_long.csv
+            // NSRDB_StationsMeta.csv
+            // NYCSidewalk_Cafes.csv
+            //
+            // rae_public_metadata.csv
+            // us-named.json
+
+
+
+
+    d3.json("./data/all_data_01.json",function(error,data){
+
+        $.each(data,function(id,array){
+            $.each(array,function(key, obj){
+
+
+                // Convert Zipcode Key to string and append 0 if there are 4 digits only, and modify values key to food key
+                if(key=="key" && array["key"].length==4){
+                    array["key"]=0+array["key"];
+                    key = "food";
+                    array["food"]=array["values"];
+                    delete array["values"];
+                }else if(key=="key"){
+                    key = "food";
+                    array["food"]=array["values"];
+                    delete array["values"];
+                }
+
+
+            });
+
+            d3.csv("./data/Boston_Public_Schools__School_Year_2012-2013_.csv",function(error,dataS){
+
+                var nested_data = d3.nest()
+                        .key(function(d) { return d.ZIPCODE; }).sortKeys(d3.ascending)
+                    //.key(function(d) { return d.SCH_TYPE; }).sortKeys(d3.ascending)
+                        .rollup(function(leaves) { return leaves.length; })
+                        .entries(dataS);
+
+                $.each(nested_data,function(idS,arrayS){
+                    if(parseInt(array["key"]) == arrayS["key"]){
+
+                        var schoolObj = array["school"];
+                        if( schoolObj == undefined){
+                            array["school"] = arrayS["values"];
+                        }
+                    }else{
+                        var schoolObj = array["school"];
+                        if( schoolObj == undefined){
+                            array["school"] = 0;
+                        }
+                    }
+                });
+
+            });
+
+            //console.log(array);
+        });
+        saveToFile(data,"all_data_02.json");
+
+    });
+
+    var saveToFile = function(object, filename){
+        var blob, blobText;
+        blobText = [JSON.stringify(object)];
+        blob = new Blob(blobText, {
+            type: "text/plain;charset=utf-8"
+        });
+        saveAs(blob, filename);
+    }
+
+
+
+
+</script>
+
+
+</body>
+</html>

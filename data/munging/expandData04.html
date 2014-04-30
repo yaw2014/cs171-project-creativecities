@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+</head>
+<body>
+<script src="./libs/d3.v3.min.js"></script>
+<script src="./libs/queue.v1.min.js"></script>
+<script src="./libs/topojson.v1.min.js"></script>
+<script type="text/javascript" src="./libs/jquery-1.11.0.min.js"></script>
+<script src="./libs/FileSaver.js"></script>
+
+<div id="vis"></div>
+
+
+<script>
+
+
+//    var orgData = {};
+//    orgData["name"] = "Cities";
+//    orgData["children"] = [
+//        {
+//            "name":"Boston",
+//            "location":{
+//                "lat": 42.358431,
+//                "lng": -71.059773
+//            },
+//            "yearly":[],
+//            "children":[]
+//        },
+//        {
+//            "name":"New York",
+//            "location":{
+//                "lat": 40.714353,
+//                "lng": -74.005973
+//            },
+//            "yearly":[],
+//            "children":[]
+//        }
+//    ];
+
+    // Reorganize data to work on Treemaps
+    d3.json("./data/CleanedData/cleaned_data_05.json",function(error,dataC){
+        d3.tsv("./data/Done/nyc_public_schools_2012.csv",function(error,data){
+
+            //console.log(data);
+            //var bos = dataC["children"][0]["children"];
+            var nyc = dataC["children"][1]["children"];
+
+            $.each(nyc,function(idC,arrayC){
+
+                //console.log(arrayC);
+
+                $.each(data,function(id,array){
+
+                    //console.log(arrayC);
+
+                    if(parseInt(arrayC["name"]) == parseInt(array["ZIP"]) ){
+
+                        var locationString = array["ADDRESS"]+", "+array["City"]+", "+array["STATE_CODE"]+" "+array["ZIP"];
+                       // console.log(locationString);
+                        d3.json("https://maps.googleapis.com/maps/api/geocode/json?address="+locationString+"&sensor=true&key=AIzaSyBwbQtuIInaFPgek2-zsOP_Ytz68V2aQLM",function(res){
+
+                            var obj = {}
+                            obj["name"] = array["SCHOOLNAME"];
+                            obj["type"] = array["SCH_TYPE"];
+                            obj["city"] = array["City"];
+
+                            //console.log(res);
+                            if(res.results[0]){
+                                var lat = res.results[0].geometry.location.lat;
+                                var long = res.results[0].geometry.location.lng;
+
+                                //obj["location"] = [long,lat];
+                                obj["location"] = {"lat": lat, "lng":long};
+                            }
+
+                            $.each(arrayC["children"],function(id_c,array_c){
+                                if(array_c["name"] == "School"){
+                                    array_c["children"].push(obj);
+                                }
+                            });
+
+                        //console.log(id)
+                        if(idC == 198 && id == 1670){
+                            //if(idC == nyc.length-1 && id == data.length-1 ){
+                                //console.log(dataC);
+                                saveToFile(dataC,"cleaned_data_05.json");
+                            }
+
+                        });
+                    }
+
+                })
+
+                // console.log(dataC);
+
+            });
+
+            //saveToFile(dataC,"cleaned_data_05.json");
+
+        });
+
+    });
+
+    var saveToFile = function(object, filename){
+        var blob, blobText;
+        blobText = [JSON.stringify(object)];
+        blob = new Blob(blobText, {
+            type: "text/plain;charset=utf-8"
+        });
+        saveAs(blob, filename);
+    }
+
+
+
+
+</script>
+
+
+</body>
+</html>

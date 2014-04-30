@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+</head>
+<body>
+<script src="./libs/d3.v3.min.js"></script>
+<script src="./libs/queue.v1.min.js"></script>
+<script src="./libs/topojson.v1.min.js"></script>
+<script type="text/javascript" src="./libs/jquery-1.11.0.min.js"></script>
+<script src="./libs/FileSaver.js"></script>
+
+<div id="vis"></div>
+
+
+<script>
+
+    // all_data_01.json
+
+    //>>>> 90spatentsBOS_NYC_SF.csv                                 # City Level #
+    //DONE  // Boston_Active_Food_Establishment_FT_filter.csv           # Neighborhood Level #
+    //DONE  // Boston_Public_Schools__School_Year_2012-2013_.csv        # Neighborhood Level #
+    //DONE  // boston_registeredcompanies.csv                           # Neighborhood Level #
+    // BP_2011_00CZ1_metadata.csv
+    // BP_2011_00CZ1_with_ann.csv
+    // creativeprofessionsbosnyc.csv
+    // grid_quarters_public_metadata.csv
+    // mbta_ridership_with_lat_long.csv
+    // MTA_ridership_data_with_lat_long.csv
+    // NSRDB_StationsMeta.csv
+    // NYCSidewalk_Cafes.csv
+    //
+    // rae_public_metadata.csv
+    // us-named.json
+
+
+
+
+    d3.json("./data/cleanedData/cleaned_data_01.json",function(error,dataC){
+
+        d3.csv("./data/90spatentsBOS_NYC_SF.csv",function(error,data){
+
+            //console.log(data);
+            //console.log(dataC);
+
+            $.each(data,function(id,array){
+
+                bosArr = dataC["children"][0]["yearly"] // Boston Array
+                nycArr = dataC["children"][1]["yearly"] // New York Array
+
+                bosObj = {
+                    "year":array["Year"],
+                    "patent":parseInt(array["BOS"])
+                }
+                bosArr.push(bosObj);
+
+                nycObj = {
+                    "year":array["Year"],
+                    "patent":parseInt(array["NYC"])
+                }
+                nycArr.push(nycObj);
+
+            });
+
+            console.log(dataC);
+            saveToFile(dataC,"cleaned_data_02.json");
+        });
+
+    });
+
+    var saveToFile = function(object, filename){
+        var blob, blobText;
+        blobText = [JSON.stringify(object)];
+        blob = new Blob(blobText, {
+            type: "text/plain;charset=utf-8"
+        });
+        saveAs(blob, filename);
+    }
+
+
+
+
+</script>
+
+
+</body>
+</html>
